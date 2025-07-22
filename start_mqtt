@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Detect OS
+OS="$(uname -s)"
+
+# Windows: fallback for Git Bash or WSL (check COMSPEC or OSTYPE)
+if [[ "$OS" == "MINGW"* || "$OS" == "CYGWIN"* || "$OS" == "MSYS"* || "$OS" == *"_NT-"* ]]; then
+  echo "Detected Windows"
+  CMD="docker run -it --rm --name mqtt-broker ^
+    -p 1883:1883 ^
+    -v %cd%\mosquitto.conf:/mosquitto/config/mosquitto.conf ^
+    eclipse-mosquitto"
+  powershell.exe -NoProfile -Command "$CMD"
+else
+  echo "Detected macOS/Linux"
+  DIR="$(pwd)"
+  docker run -it --rm --name mqtt-broker \
+    -p 1883:1883 \
+    -v "$DIR/mosquitto.conf:/mosquitto/config/mosquitto.conf" \
+    eclipse-mosquitto
+fi
